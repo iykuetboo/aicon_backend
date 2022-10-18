@@ -1,3 +1,4 @@
+print('call settings.py')
 """
 Django settings for gettingstarted project.
 
