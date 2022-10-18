@@ -38,7 +38,7 @@ else:
     ALLOWED_HOSTS = []
 
 if IS_HEROKU:
-    CSRF_TRUSTED_ORIGINS = ['*']
+    CSRF_TRUSTED_ORIGINS = ['https://aicon-maker-backend.herokuapp.com']
 else:
     CSRF_TRUSTED_ORIGINS = []
 

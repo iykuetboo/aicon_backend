@@ -73,6 +73,8 @@ def check_result_nodb(request):
     if request.method == 'GET':
         return JsonResponse({})
 
+    print(request.body)
+
     # JSON文字列
     datas = json.loads(request.body)
 
