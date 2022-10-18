@@ -23,22 +23,16 @@ def check_result(request):
     # JSON文字列
     datas = json.loads(request.body)
 
-    id = str(datas["id"])
-    print("id",id)
-
-    print("Reservation.objects",Reservation.objects)
-    print("Reservation.objects",Reservation.objects.count())
-    print("Reservation.objects",Reservation.objects.first())
-    print("Reservation.objects",Reservation.objects.first().reservation_id)
-    print("Reservation.objects",id)
+    id = str(datas['id'])
+    print('id',id)
 
     reservation = Reservation.objects.filter(reservation_id=id)
     
-    print("reservation",reservation)
-    print("reservation",reservation.count())
+    print('reservation',reservation)
+    print('reservation',reservation.count())
 
     if reservation.count() == 0:
-        raise Http404("reservation does not exist")
+        raise Http404('reservation does not exist')
 
     reservation = reservation[0]
 
@@ -52,20 +46,20 @@ def check_result(request):
             respath.append(domain+img.image.url)
 
         ret = {
-            "id": id,
-            "completed":True,
-            "result":respath
+            'id': id,
+            'completed':True,
+            'result':respath
             }
 
     elif reservation.state==0: # inprogress
         queue_length = Reservation.objects.filter(state=0,created_at__lt=reservation.created_at).count()
         ret = {
-            "id": id,
-            "completed":True,
-            "queue_length":queue_length
+            'id': id,
+            'completed':True,
+            'queue_length':queue_length
             }
     else:
-        raise Http404("reservation disabled")
+        raise Http404('reservation disabled')
 
     response = JsonResponse(ret)
 
@@ -81,35 +75,35 @@ def check_result_nodb(request):
     # JSON文字列
     datas = json.loads(request.body)
 
-    id = str(datas["id"])
+    id = str(datas['id'])
 
-    id_num = re.sub(r"\D", "", id)
+    id_num = re.sub(r'\D', '', id)
 
-    if "finish" in id: # completed
+    if 'finish' in id: # completed
         domain = get_current_site(request).domain
 
         respath = [
-            domain + "/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_00.png",
-            domain + "/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_01.png",
-            domain + "/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_02.png",
-            domain + "/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_03.png",
-            domain + "/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_04.png",
-            domain + "/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_05.png",
+            domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_00.png',
+            domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_01.png',
+            domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_02.png',
+            domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_03.png',
+            domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_04.png',
+            domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_05.png',
             ]
         ret = {
-            "id": id,
-            "completed":True,
-            "result":respath
+            'id': id,
+            'completed':True,
+            'result':respath
             }
 
-    elif id_num != "": # inprogress
+    elif id_num != '': # inprogress
         ret = {
-            "id": id,
-            "completed":True,
-            "queue_length":int(id_num)
+            'id': id,
+            'completed':True,
+            'queue_length':int(id_num)
             }
     else:
-        raise Http404("reservation disabled")
+        raise Http404('reservation disabled')
 
 
     response = JsonResponse(ret)
@@ -128,7 +122,7 @@ def reserve(request):
     # JSON文字列
     datas = json.loads(request.body)
 
-    tags = datas["tags"]
+    tags = datas['tags']
 
     # create reservation with id
     reservation = Reservation(id=str(uuid4()))
@@ -141,7 +135,7 @@ def reserve(request):
     id = reservation.pk
     
 
-    ret = {"id":id, "queue_length": 5}
+    ret = {'id':id, 'queue_length': 5}
     response = JsonResponse(ret)
 
     return response

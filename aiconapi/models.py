@@ -20,7 +20,7 @@ class Tag(models.Model):
 class Reservation(models.Model):
     reservation_id = models.CharField(max_length=128,unique=True)
     input_tags = models.ManyToManyField(Tag)
-    prompt = models.TextField(blank=True,default="")
+    prompt = models.TextField(blank=True,default='')
 
     state_chioces = (
         (0,'inprocessing'), (1,'completed'), (-1,'desabled')
@@ -32,7 +32,7 @@ class Reservation(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return "reservation_" + self.reservation_id
+        return 'reservation_' + self.reservation_id
 
 class Result(models.Model):
     name = models.CharField(max_length=256)
