@@ -19,7 +19,6 @@ from pathlib import Path
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 IS_HEROKU = "DYNO" in os.environ
 
 # Quick-start development settings - unsuitable for production
@@ -43,6 +42,11 @@ if not IS_HEROKU:
     DEBUG = True
 
 # Application definition
+MEDIA_URL = '/media/'
+if DEBUG:
+    MEDIA_ROOT = BASE_DIR.joinpath('media')
+else:
+    MEDIA_ROOT = f'/var/www/{BASE_DIR.name}/media'
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -52,6 +56,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "hello",
+    "aiconapi",
 ]
 
 MIDDLEWARE = [
