@@ -37,6 +37,11 @@ if IS_HEROKU:
 else:
     ALLOWED_HOSTS = []
 
+if IS_HEROKU:
+    CSRF_TRUSTED_ORIGINS = ['https://aicon-maker-backend.herokuapp.com']
+else:
+    CSRF_TRUSTED_ORIGINS = []
+
 # SECURITY WARNING: don't run with debug turned on in production!
 if not IS_HEROKU:
     DEBUG = True
