@@ -6,7 +6,7 @@ import requests
 import json
 import sys
 
-url = "http://127.0.0.1:8000/aiconapi/check_result_nodb"
+url = "https://aicon-maker-backend.herokuapp.com/aiconapi/check_result_nodb"
 sess = requests.session()
 
 print(sess.get(url))
