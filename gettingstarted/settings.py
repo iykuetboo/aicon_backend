@@ -41,7 +41,8 @@ else:
 if not IS_HEROKU:
     DEBUG = True
 else:
-    DEBUG = False
+    # DEBUG = False
+    DEBUG = True
 
 # Application definition
 MEDIA_URL = '/media/'
