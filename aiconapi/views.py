@@ -6,14 +6,14 @@ from django.shortcuts import render
 from django.http import HttpResponse, Http404
 import json
 from django.http.response import JsonResponse
-from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.csrf import ensure_csrf_cookie,csrf_exempt
 from django.contrib.sites.shortcuts import get_current_site
 import re
 from .models import Reservation, Tag
 
 # Create your views here.
 
-@ensure_csrf_cookie
+@csrf_exempt
 def check_result(request):
 
     # 最初のGETでアクセスしてCSRF情報を返す
@@ -65,7 +65,8 @@ def check_result(request):
 
     return response
 
-@ensure_csrf_cookie
+# @ensure_csrf_cookie
+@csrf_exempt
 def check_result_nodb(request):
 
     # 最初のGETでアクセスしてCSRF情報を返す
@@ -112,7 +113,7 @@ def check_result_nodb(request):
 
 
 
-@ensure_csrf_cookie
+@csrf_exempt
 def reserve(request):
 
     # 最初のGETでアクセスしてCSRF情報を返す

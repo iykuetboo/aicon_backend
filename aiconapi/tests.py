@@ -12,6 +12,7 @@ sess = requests.session()
 print(sess.get(url))
 
 csrftoken = sess.cookies['csrftoken']
+print(csrftoken)
 
 # ヘッダ
 headers = {'Content-type': 'application/json',  "X-CSRFToken": csrftoken}
