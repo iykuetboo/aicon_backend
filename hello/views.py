@@ -5,9 +5,15 @@ from .models import Greeting
 
 # Create your views here.
 def index(request):
-    # return HttpResponse('Hello from Pythoon!')
-    print(request)
-    return render(request, "index.html")
+    # return HttpResponse('Hello from Python!')
+    response = HttpResponse('Hello from Python!')
+    return response
+
+    
+def test(request):
+    # return HttpResponse('Hello from Python!')
+    response = HttpResponse('Test Response!')
+    return response
 
 
 def db(request):
