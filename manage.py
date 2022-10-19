@@ -1,3 +1,4 @@
+print('call manage.py')
 #!/usr/bin/env python
 import os
 import sys

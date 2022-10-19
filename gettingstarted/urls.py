@@ -1,5 +1,6 @@
-print('call urls.py')
+from django.conf.urls.static import static
 from django.urls import path, include
+from django.conf import settings
 
 from django.contrib import admin
 
@@ -19,4 +20,6 @@ urlpatterns = [
     path("", hello.views.index, name="index"),
     path("db/", hello.views.db, name="db"),
     path("admin/", admin.site.urls),
-]
+    path('polls/', include('polls.urls')),
+    path('save_image/', include('save_image.urls')),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

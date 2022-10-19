@@ -37,7 +37,7 @@ if 'SECRET_KEY' in os.environ:
 if IS_HEROKU:
     ALLOWED_HOSTS = ["*"]
 else:
-    ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = ['localhost', '0.0.0.0', '127.0.0.1']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 if not IS_HEROKU:
@@ -53,6 +53,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "hello",
+    'polls.apps.PollsConfig',
+    'save_image.apps.SaveImageConfig'
 ]
 
 MIDDLEWARE = [
@@ -163,3 +165,6 @@ if "CI" in os.environ:
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
