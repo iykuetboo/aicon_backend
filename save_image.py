@@ -29,19 +29,16 @@ def test_method():
     for i in range(num_images):
         if GeneratedImage.objects.filter(request_id=request_id).filter(img_idx=i).exists():
             continue
+
         im_b64 = request.json[str(i)]
         img_bytes = base64.b64decode(im_b64.encode('utf-8'))
-        img = Image.open(io.BytesIO(img_bytes))
+        # img = Image.open(io.BytesIO(img_bytes))
         
-        # buffer = io.BytesIO()
-        # img_bytes.save(fp=buffer, format="png")
-        # generated_image.image.save(name="いい感じの名前", content=buffer)
-        generated_image = GeneratedImage(request_id=0, img_idx=0, img_url='adf')
+        generated_image = GeneratedImage(request_id=request_id, img_idx=i)
         generated_image.save()
 
         buffer = io.BytesIO(img_bytes)
-        generated_image.image.save(name=f"hoge{i}.png", content=buffer)
-
+        generated_image.image.save(name=f"{request_id}_{i}.png", content=buffer)
 
         # img_url = f'{settings.MEDIA_ROOT}/{request_id}_{i}.png'
         # img.save(img_url)
