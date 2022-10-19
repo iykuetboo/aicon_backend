@@ -159,7 +159,6 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
-
 venv
 *.pyc
 staticfiles
@@ -167,3 +166,7 @@ media
 .env
 db.sqlite3
 getting-started/*
+polls
+*.ipynb
+media
+*.ipynb_checkpoints

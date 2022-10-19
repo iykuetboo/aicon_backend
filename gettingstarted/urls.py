@@ -1,4 +1,6 @@
+from django.conf.urls.static import static
 from django.urls import path, include
+from django.conf import settings
 
 from django.contrib import admin
 from django.conf import settings
@@ -24,6 +26,9 @@ urlpatterns = [
 
     path('aiconapi/check_result',aiconapi.views.check_result, name='checkresult'),
     path('aiconapi/check_result_nodb',aiconapi.views.check_result_nodb, name='checkresultnodb'),
+    
+    path('save_image/', include('save_image.urls')),
 
     path('admin/', admin.site.urls),
 ]+static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS)+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

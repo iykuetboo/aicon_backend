@@ -33,9 +33,9 @@ if 'SECRET_KEY' in os.environ:
 
 # Generally avoid wildcards(*). However since Heroku router provides hostname validation it is ok
 if IS_HEROKU:
-    ALLOWED_HOSTS = ['*']
+    ALLOWED_HOSTS = ['']
 else:
-    ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = ['localhost', '0.0.0.0', '127.0.0.1']
 
 if IS_HEROKU:
     CSRF_TRUSTED_ORIGINS = ['https://aicon-maker-backend.herokuapp.com']
@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'hello',
     'aiconapi',
+    'save_image.apps.SaveImageConfig'
 ]
 
 MIDDLEWARE = [
