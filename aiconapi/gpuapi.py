@@ -17,9 +17,13 @@ def send_to_gpu(prompt,id,reqAddtionalHeaders={}):
             req = urllib.request.Request(settings.GPU_PATH, data,reqAddtionalHeaders)
 
             with urllib.request.urlopen(req, timeout=5) as f:
+                code = f.getcode()
                 print(f.read().decode('utf-8'))
             
-            return True
+            print(code)
+            if code=='200':
+                return True
+            return False
         except:
             print(f'failed to send prompt to gpu, retrying... \nprompt:{prompt}')
             time.sleep(1)
