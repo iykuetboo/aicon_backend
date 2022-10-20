@@ -19,9 +19,8 @@ def send_to_gpu(prompt,id,reqAddtionalHeaders={}):
             with urllib.request.urlopen(req, timeout=5) as f:
                 code = f.getcode()
                 print(f.read().decode('utf-8'))
-            
-            print(code, type(code))
-            if int(code)==200:
+                
+            if code==200:
                 return True
             print(f'code error: {code}')
             return False
