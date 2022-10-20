@@ -138,11 +138,15 @@ def reserve(request):
 
     # create reservation with id
     reservation = Reservation(reservation_id=str(uuid4()))
-    for tag in tags:
-        t,new = Tag.objects.get_or_create(name=tag)
-        reservation.input_tags.add(t)
-
-    reservation.save()
+    if len(tag) > 0:
+        reservation.save()
+        for tag in tags:
+            t,new = Tag.objects.get_or_create(name=tag)
+            t.save()
+            reservation.input_tags.add(t)
+        reservation.save() 
+    else:
+        return Http404()
 
     id = reservation.pk
 
