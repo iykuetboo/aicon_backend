@@ -141,7 +141,7 @@ def reserve(request):
         reservation.input_tags.add(t)
     reservation.save()
 
-    threading.Thread(reserve_process,args=[id, tags, reservation]).start()
+    threading.Thread(target=reserve_process,args=(id, tags, reservation)).start()
 
     ret = {'id':id}    
     response = JsonResponse(ret)
