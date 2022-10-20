@@ -33,7 +33,7 @@ if 'SECRET_KEY' in os.environ:
 
 # Generally avoid wildcards(*). However since Heroku router provides hostname validation it is ok
 if IS_HEROKU:
-    ALLOWED_HOSTS = ['']
+    ALLOWED_HOSTS = ['aicon-maker-backend.herokuapp.com']
 else:
     ALLOWED_HOSTS = ['localhost', '0.0.0.0', '127.0.0.1']
 
