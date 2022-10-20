@@ -138,7 +138,7 @@ def reserve(request):
 
     # create reservation with id
     reservation = Reservation(reservation_id=str(uuid4()))
-    if len(tag) > 0:
+    if len(tags) > 0:
         reservation.save()
         for tag in tags:
             t,new = Tag.objects.get_or_create(name=tag)
