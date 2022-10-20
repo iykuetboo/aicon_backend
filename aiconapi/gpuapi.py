@@ -20,12 +20,13 @@ def send_to_gpu(prompt,id,reqAddtionalHeaders={}):
                 code = f.getcode()
                 print(f.read().decode('utf-8'))
             
-            print(code)
-            if code=='200':
+            print(code, type(code))
+            if int(code)=='200':
                 return True
+            print(f'code error: {code}')
             return False
         except:
-            print(f'failed to send prompt to gpu, retrying... \nprompt:{prompt}')
+            print(f'failed to send prompt to gpu, retrying... \nurl:{settings.GPU_PATH}')
             time.sleep(1)
         print(f'trial {cnt} finish')
     return False
