@@ -139,7 +139,7 @@ def reserve(request):
     # create reservation with id
     reservation = Reservation(reservation_id=str(uuid4()))
     for tag in tags:
-        t,new = Tag.get_or_create(name=tag)
+        t,new = Tag.objects.get_or_create(name=tag)
         reservation.input_tags.add(t)
 
     reservation.save()
