@@ -6,8 +6,7 @@ from django.conf import settings
 
 def send_to_gpu(prompt,id,reqAddtionalHeaders={}):
     # 特定HEADER送信の例です。このサンプルに未使用
-    data = urllib.parse.urlencode({"prompt": prompt,
-                                "id":id})
+    data = urllib.parse.urlencode({"prompt": prompt,"id":id})
     data = data.encode('utf-8')
     cnt = 0
 

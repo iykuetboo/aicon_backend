@@ -2,9 +2,9 @@ import requests
 import json
 import sys
 
-# url = 'https://aicon-maker-backend.herokuapp.com/aiconapi/check_result_nodb'
+url = 'https://aicon-maker-backend.herokuapp.com/aiconapi/check_result'
 # url = 'http://localhost:8000/aiconapi/check_result_nodb'
-url = 'http://localhost:8000/aiconapi/check_result'
+# url = 'http://localhost:8000/aiconapi/check_result'
 
 sess = requests.session()
 
