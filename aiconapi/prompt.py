@@ -35,19 +35,21 @@ def make_prompt(tags):
     score = []
     for text in materials:
             parameters = {
-                        "app_id": app_id,  
+                        "app_id": app_id,
                         "text1": tag,
                         "text2": text
                         }
-            while True:
+            cnt = 0
+            while cnt < 4:
+                cnt += 1
                 try:
                     res = requests.post('https://labs.goo.ne.jp/api/textpair', headers=headers, json=parameters)
                     response = json.loads(res.text)
-                    print(response)
                     score.append(response["score"])
                     break
                 except:
-                    time.sleep(0.5)   
+                    # time.sleep(0.5)
+                    print('goo api try again.')
     material = materials[score.index(max(score))]
 
     # select art_style
@@ -58,14 +60,17 @@ def make_prompt(tags):
                         "text1": tag,
                         "text2": text
                         }
-            while True:
+            cnt = 0
+            while cnt < 4:
+                cnt += 1
                 try:
                     res = requests.post('https://labs.goo.ne.jp/api/textpair', headers=headers, json=parameters)
                     response = json.loads(res.text)
                     score.append(response["score"])
                     break
                 except:
-                    time.sleep(0.5)
+                    # time.sleep(0.5)
+                    print('goo api try again.')
     art_style = art_styles[score.index(max(score))]
 
     # select national_style
@@ -76,18 +81,21 @@ def make_prompt(tags):
                         "text1": tag,
                         "text2": text
                         }
-            while True:
+            cnt = 0
+            while cnt < 4:
+                cnt += 1
                 try:
                     res = requests.post('https://labs.goo.ne.jp/api/textpair', headers=headers, json=parameters)
                     response = json.loads(res.text)
                     score.append(response["score"])
                     break
                 except:
-                    time.sleep(0.5)
+                    # time.sleep(0.5)
+                    print('goo api try again.')
     national_style = national_styles[score.index(max(score))]
     prompt = "a SNS icon of " + object.lower()+ " " + material + " " + art_style + " " + national_style + " " + " ".join(genarals) + " " + ts.google(" ".join(tags[1:])).lower()
-    print("tags: ", tags)
-    print("prompt: ", prompt)
+    # print("tags: ", tags)
+    # print("prompt: ", prompt)
     return prompt
 
 import sys
