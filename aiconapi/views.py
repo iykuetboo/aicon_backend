@@ -50,6 +50,11 @@ def check_result(request):
             'completed':True,
             'result':respath
             }
+        if 'aicon_reservation' in request.session:
+            del request.session['aicon_reservation']
+        else:
+            print("no session data")
+
 
     elif reservation.is_inprogress(): # inprogress
         queue_length = reservation.get_queue_length()
@@ -99,6 +104,11 @@ def check_result_nodb(request):
             'result':respath
             }
 
+        if 'aicon_reservation' in request.session:
+            del request.session['aicon_reservation']
+        else:
+            print("no session data")
+
     elif id_num != '': # inprogress
         ret = {
             'id': id,
@@ -117,10 +127,14 @@ def check_result_nodb(request):
 
 @csrf_exempt
 def reserve(request):
-
     # 最初のGETでアクセスしてCSRF情報を返す
     if request.method == 'GET':
         return JsonResponse({})
+
+    if 'aicon_reservation' in request.session:
+        print("same user !!", request.session)
+    else:
+        request.session['aicon_reservation'] = id
 
     # JSON文字列
     datas = json.loads(request.body)
