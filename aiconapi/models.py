@@ -26,22 +26,16 @@ class Reservation(models.Model):
         (0,'inprocessing'), (1,'completed'), (-1,'desabled')
     )
     state = models.IntegerField(choices=state_chioces,blank=False,default=0)
-    # last_checked = models.DateTimeField(blank=True,null=True)
-    # queue_length = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def get_queue_length(self):
         queue_length = Reservation.objects.filter(state=0,created_at__lt=self.created_at).count()
-        # self.queue_length = 
         return queue_length
     
-    def is_completed(self):
-        return self.state==1
-    def is_inprogress(self):
-        return self.state==0
-
     def __str__(self):
+        if self.prompt:
+            return 'reservation_' + self.prompt
         return 'reservation_' + self.reservation_id
 
 class GeneratedImage(models.Model):

@@ -37,7 +37,6 @@ def check_result(request):
     datas = json.loads(request.body)
 
     id = str(datas['id'])
-    print('id',id)
 
     reservation = Reservation.objects.filter(reservation_id=id)
 
@@ -45,37 +44,41 @@ def check_result(request):
         raise Http404('reservation does not exist')
 
     reservation = reservation.first()
-    print('reservation',reservation, reservation.state)
 
-    if reservation.is_completed(): # completed
+    if reservation.state==1: # completed
         respath = []
-        print(reservation.generated_image)
-        print(reservation.generated_image.all())
         domain = 'https://' + get_current_site(request).domain
         for img in reservation.generated_image.all():
-            
             respath.append(domain+img.image.url)
-
         ret = {
             'id': id,
             'completed':True,
-            'result':respath
+          # 'prompt': reservation.prompt,
+            'result':respath,
             }
-        if 'aicon_reservation' in request.session:
-            del request.session['aicon_reservation']
-        else:
-            print("no session data")
-
-
-    elif reservation.is_inprogress(): # inprogress
+    elif reservation.state==0: # inprogress
         queue_length = reservation.get_queue_length()
         ret = {
             'id': id,
             'completed':False,
+          # 'prompt': reservation.prompt,
             'queue_length':queue_length
             }
+    elif reservation.state == -1: # disabled by gpu missing
+        gpu_is_active = send_to_gpu(reservation.prompt,id)
+        if gpu_is_active:
+            reservation.state = 0
+            queue_length = reservation.get_queue_length()
+            ret = {
+                'id': id,
+                'completed':False,
+              # 'prompt': reservation.prompt,
+                'queue_length':queue_length
+                }
+        else:
+            ret = ret_sample(id,request)
     else:
-        raise Http404('reservation disabled')
+        raise Http404('irregular reservation')
 
     response = JsonResponse(ret)
 
@@ -130,66 +133,34 @@ def reserve(request):
         return HttpResponse("invalid tags")
 
     id = str(uuid4())
-
-    prompt = make_prompt(tags)
-    gpu_is_active = send_to_gpu(prompt,id)
-
-    if gpu_is_active == False:
-        dummy_id = 'dummy'
-        reservation,new = Reservation.objects.get_or_create(reservation_id=dummy_id)
-        reservation.save()
-        # if True:
-        #     ss = [
-        #     '/dummyImage/dummy_0.png',
-        #     '/dummyImage/dummy_1.png',
-        #     '/dummyImage/dummy_2.png',
-        #     '/dummyImage/dummy_3.png',
-        #     '/dummyImage/dummy_4.png',
-        #     '/dummyImage/dummy_5.png',
-        #     ]
-        #     for i,s in enumerate(ss):
-        #         if GeneratedImage.objects.filter(request_id=dummy_id,img_idx=i).exists():
-        #             continue
-        #         print(get_current_site(request))
-        #         print(settings.STATIC_ROOT /settings.STATIC_ / s)
-        #         img = PIL.Image.open(settings.STATIC_ROOT / s)
-        #         print(img)
-        #         buffer = io.BytesIO()
-        #         img.save(fp=buffer, format='png')
-
-        #         generated_image = GeneratedImage(request_id=dummy_id, img_idx=i)
-        #         generated_image.reservation = reservation
-        #         generated_image.save()
-
-        #         generated_image.image.save(name=f'{dummy_id}_{i}', content=buffer)
-        #         # generated_image.save()
-
-    else:
-        # create reservation with id
-        reservation = Reservation(reservation_id=id)
-        
+    reservation = Reservation(reservation_id=id)
     reservation.save()
-    id = reservation.pk
-
     for tag in tags:
         t,new = Tag.objects.get_or_create(name=tag)
         t.save()
         reservation.input_tags.add(t)
-    
-    reservation.prompt = prompt
     reservation.save()
 
-    queue_length = reservation.get_queue_length()
+    threading.Thread(reserve_process,args=[id, tags, reservation]).start()
 
-    ret = {'id':id, 'queue_length': queue_length}    
+    ret = {'id':id}    
     response = JsonResponse(ret)
-
     return response
 
-def test():
-    print("aaaaaaaaaaaaaaaaaaaaa")
-    time.sleep(5)
-    print("bbbbbbbbbbbbbbbbbbbbbbbbb")
+
+def reserve_process(id,tags,reservation):
+    prompt = make_prompt(tags)
+    reservation.prompt = prompt
+
+    gpu_is_active = send_to_gpu(prompt,id)
+
+    if gpu_is_active:
+        print(f'{id} succeed to send gpu')
+    else:
+        print(f'{id} failed to send gpu')
+        reservation.state = -1 # set disabled
+    reservation.save()
+
 
 @csrf_exempt
 def save_generated_images(request):
@@ -232,17 +203,52 @@ def ret_sample(id,request):
     domain = 'https://' + get_current_site(request).domain
 
     respath = [
-        domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_00.png',
-        domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_01.png',
-        domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_02.png',
-        domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_03.png',
-        domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_04.png',
-        domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_05.png',
+        domain + '/static/dummy/dummy_0.png',
+        domain + '/static/dummy/dummy_1.png',
+        # domain + '/static/dummy/dummy_2.png',
+        # domain + '/static/dummy/dummy_3.png',
+        # domain + '/static/dummy/dummy_4.png',
+        # domain + '/static/dummy/dummy_5.png',
         ]
 
     ret = {
         'id': id,
         'completed':True,
+        'prompt': 'dummy prompt',
         'result':respath
         }
     return ret
+
+
+
+
+
+
+
+
+
+        # if True:
+        #     ss = [
+        #     '/dummyImage/dummy_0.png',
+        #     '/dummyImage/dummy_1.png',
+        #     '/dummyImage/dummy_2.png',
+        #     '/dummyImage/dummy_3.png',
+        #     '/dummyImage/dummy_4.png',
+        #     '/dummyImage/dummy_5.png',
+        #     ]
+        #     for i,s in enumerate(ss):
+        #         if GeneratedImage.objects.filter(request_id=dummy_id,img_idx=i).exists():
+        #             continue
+        #         print(get_current_site(request))
+        #         print(settings.STATIC_ROOT /settings.STATIC_ / s)
+        #         img = PIL.Image.open(settings.STATIC_ROOT / s)
+        #         print(img)
+        #         buffer = io.BytesIO()
+        #         img.save(fp=buffer, format='png')
+
+        #         generated_image = GeneratedImage(request_id=dummy_id, img_idx=i)
+        #         generated_image.reservation = reservation
+        #         generated_image.save()
+
+        #         generated_image.image.save(name=f'{dummy_id}_{i}', content=buffer)
+        #         # generated_image.save()
