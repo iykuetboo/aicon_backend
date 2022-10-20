@@ -137,7 +137,7 @@ def reserve(request):
     tags = datas['tags']
 
     # create reservation with id
-    reservation = Reservation(id=str(uuid4()))
+    reservation = Reservation(reservation_id=str(uuid4()))
     for tag in tags:
         t,new = Tag.get_or_create(name=tag)
         reservation.input_tags.add(t)
