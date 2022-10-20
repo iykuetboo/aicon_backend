@@ -131,11 +131,6 @@ def reserve(request):
     if request.method == 'GET':
         return JsonResponse({})
 
-    if 'aicon_reservation' in request.session:
-        print("same user !!", request.session)
-    else:
-        request.session['aicon_reservation'] = id
-
     # JSON文字列
     datas = json.loads(request.body)
 
@@ -150,6 +145,11 @@ def reserve(request):
     reservation.save()
 
     id = reservation.pk
+
+    if 'aicon_reservation' in request.session:
+        print("same user !!", request.session)
+    else:
+        request.session['aicon_reservation'] = id
     
     queue_length = reservation.get_queue_length()
     
