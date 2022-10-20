@@ -205,10 +205,10 @@ def ret_sample(id,request):
     respath = [
         domain + '/static/dummy/dummy_0.png',
         domain + '/static/dummy/dummy_1.png',
-        # domain + '/static/dummy/dummy_2.png',
-        # domain + '/static/dummy/dummy_3.png',
-        # domain + '/static/dummy/dummy_4.png',
-        # domain + '/static/dummy/dummy_5.png',
+        domain + '/static/dummy/dummy_2.png',
+        domain + '/static/dummy/dummy_3.png',
+        domain + '/static/dummy/dummy_4.png',
+        domain + '/static/dummy/dummy_5.png',
         ]
 
     ret = {
