@@ -40,7 +40,7 @@ def check_result(request):
         respath = []
         print(reservation.generated_image)
         print(reservation.generated_image.all())
-        domain = get_current_site(request).domain
+        domain = 'https://' + get_current_site(request).domain
         for img in reservation.generated_image.all():
             
             respath.append(domain+img.image.url)
@@ -88,7 +88,7 @@ def check_result_nodb(request):
     id_num = re.sub(r'\D', '', id)
 
     if 'finish' in id: # completed
-        domain = get_current_site(request).domain
+        domain = 'https://' + get_current_site(request).domain
 
         respath = [
             domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_00.png',

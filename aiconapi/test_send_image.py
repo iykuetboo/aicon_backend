@@ -8,7 +8,8 @@ import time
 # {id:10, imagenum:5, 0:<byte>, ... , 4: <byte>}
 
 def send_image(id):
-    api = 'http://localhost:8000/aiconapi/save_generated_images'
+    # api = 'http://localhost:8000/aiconapi/save_generated_images'
+    api = 'https://aicon-maker-backend.herokuapp.com/aiconapi/save_generated_images'
     images = {}
     images["id"] = id
     image_paths = glob.glob("static/dummyImage/*")
