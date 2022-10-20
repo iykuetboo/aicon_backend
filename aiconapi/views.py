@@ -5,11 +5,13 @@ from uuid import uuid4
 from django.shortcuts import render
 from django.http import HttpResponse, Http404
 import json
+import base64
+import io
 from django.http.response import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie,csrf_exempt
 from django.contrib.sites.shortcuts import get_current_site
 import re
-from .models import Reservation, Tag
+from .models import Reservation, Tag, GeneratedImage
 
 # Create your views here.
 
@@ -27,21 +29,19 @@ def check_result(request):
     print('id',id)
 
     reservation = Reservation.objects.filter(reservation_id=id)
-    
-    print('reservation',reservation)
-    print('reservation',reservation.count())
 
     if reservation.count() == 0:
         raise Http404('reservation does not exist')
 
-    reservation = reservation[0]
+    reservation = reservation.first()
+    print('reservation',reservation, reservation.state)
 
-    if reservation.state==1: # completed
+    if reservation.is_completed(): # completed
         respath = []
-        print(reservation.result_image)
-        print(reservation.result_image.all())
+        print(reservation.generated_image)
+        print(reservation.generated_image.all())
         domain = get_current_site(request).domain
-        for img in reservation.result_image.all():
+        for img in reservation.generated_image.all():
             
             respath.append(domain+img.image.url)
 
@@ -51,11 +51,11 @@ def check_result(request):
             'result':respath
             }
 
-    elif reservation.state==0: # inprogress
-        queue_length = Reservation.objects.filter(state=0,created_at__lt=reservation.created_at).count()
+    elif reservation.is_inprogress(): # inprogress
+        queue_length = reservation.get_queue_length()
         ret = {
             'id': id,
-            'completed':True,
+            'completed':False,
             'queue_length':queue_length
             }
     else:
@@ -102,7 +102,7 @@ def check_result_nodb(request):
     elif id_num != '': # inprogress
         ret = {
             'id': id,
-            'completed':True,
+            'completed':False,
             'queue_length':int(id_num)
             }
     else:
@@ -137,8 +137,45 @@ def reserve(request):
 
     id = reservation.pk
     
-
-    ret = {'id':id, 'queue_length': 5}
+    queue_length = reservation.get_queue_length()
+    
+    ret = {'id':id, 'queue_length': queue_length}
     response = JsonResponse(ret)
 
     return response
+
+@csrf_exempt
+def save_generated_images(request):
+    datas = json.loads(request.body)
+
+    request_id = datas['id']
+    num_images = datas['imagenum']
+
+    reservations = Reservation.objects.filter(reservation_id=request_id)
+    if reservations.count() > 0:
+        reservation = reservations.first()
+    else:
+        reservation = None
+
+    for i in range(num_images):
+        if GeneratedImage.objects.filter(request_id=request_id,img_idx=i).exists():
+            continue
+
+        im_b64 = datas[str(i)]
+        img_bytes = base64.b64decode(im_b64.encode('utf-8'))
+        
+        generated_image = GeneratedImage(request_id=request_id, img_idx=i)
+        
+        if reservation:
+            generated_image.reservation = reservation
+
+        buffer = io.BytesIO(img_bytes)
+        generated_image.image.save(name=f"{request_id}_{i}.png", content=buffer)
+
+    if reservation:
+        reservation.state = 1
+        reservation.save()
+    ret = {'output': 'output_key'}
+    response = JsonResponse(ret)
+    return response
+

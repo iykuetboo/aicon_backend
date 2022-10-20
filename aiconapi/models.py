@@ -18,7 +18,7 @@ class Tag(models.Model):
         return self.name
 
 class Reservation(models.Model):
-    reservation_id = models.CharField(max_length=128,unique=True)
+    reservation_id = models.CharField(max_length=128,unique=True,primary_key=True)
     input_tags = models.ManyToManyField(Tag)
     prompt = models.TextField(blank=True,default='')
 
@@ -26,20 +26,32 @@ class Reservation(models.Model):
         (0,'inprocessing'), (1,'completed'), (-1,'desabled')
     )
     state = models.IntegerField(choices=state_chioces,blank=False,default=0)
-    last_checked = models.DateTimeField(blank=True,null=True)
-    queue_length = models.IntegerField(default=0)
+    # last_checked = models.DateTimeField(blank=True,null=True)
+    # queue_length = models.IntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def get_queue_length(self):
+        queue_length = Reservation.objects.filter(state=0,created_at__lt=self.created_at).count()
+        # self.queue_length = 
+        return queue_length
+    
+    def is_completed(self):
+        return self.state==1
+    def is_inprogress(self):
+        return self.state==0
 
     def __str__(self):
         return 'reservation_' + self.reservation_id
 
-class Result(models.Model):
-    name = models.CharField(max_length=256)
-    image = models.ImageField(upload_to='images/result')
-    reservation = models.ForeignKey(Reservation,on_delete=models.DO_NOTHING,related_name='result_image')
+class GeneratedImage(models.Model):
+    request_id = models.CharField(max_length=128,default=None)
+    img_idx = models.IntegerField(default=None)
+    image = models.ImageField(upload_to='img/')
+    reservation = models.ForeignKey(Reservation,on_delete=models.DO_NOTHING,related_name='generated_image',null=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
     def __str__(self):
-        return self.name
+        return str(self.request_id) + "_" + str(self.img_idx)

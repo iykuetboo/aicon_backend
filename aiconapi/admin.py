@@ -4,4 +4,4 @@ from .models import *
 # Register your models here.
 admin.site.register(Reservation)
 admin.site.register(Tag)
-admin.site.register(Result)
+admin.site.register(GeneratedImage)
