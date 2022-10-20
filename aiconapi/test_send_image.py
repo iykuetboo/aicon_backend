@@ -7,12 +7,12 @@ import requests
 import time
 # {id:10, imagenum:5, 0:<byte>, ... , 4: <byte>}
 
-def send_image(id):
+def send_image(id, path_glob):
     # api = 'http://localhost:8000/aiconapi/save_generated_images'
     api = 'https://aicon-maker-backend.herokuapp.com/aiconapi/save_generated_images'
     images = {}
     images["id"] = id
-    image_paths = glob.glob("static/dummyImage/*")
+    image_paths = glob.glob(path_glob)
     images["imagenum"] = len(image_paths)
     for i, f in enumerate(image_paths):
         with open(f, "rb") as f:
@@ -28,4 +28,5 @@ def send_image(id):
             time.sleep(0.5)
 
 if __name__=="__main__":
-    send_image(sys.argv[-1])
+    send_image(sys.argv[-1],"static/dummyImage/*")
+    send_image('dummy',"dummy/*")

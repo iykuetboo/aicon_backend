@@ -37,11 +37,6 @@ if IS_HEROKU:
 else:
     ALLOWED_HOSTS = ['localhost', '0.0.0.0', '127.0.0.1']
 
-if IS_HEROKU:
-    CSRF_TRUSTED_ORIGINS = ['https://aicon-maker-backend.herokuapp.com']
-else:
-    CSRF_TRUSTED_ORIGINS = []
-
 # SECURITY WARNING: don't run with debug turned on in production!
 if not IS_HEROKU:
     DEBUG = True
@@ -79,10 +74,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
-
-CORS_ORIGIN_WHITELIST = [
-    'http://localhost:3000',
 ]
 
 ROOT_URLCONF = 'gettingstarted.urls'
@@ -182,3 +173,24 @@ if 'CI' in os.environ:
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+if IS_HEROKU:
+    GPU_PATH = os.environ['GPU_PATH']
+else:
+    GPU_PATH = 'localhost:8080'
+
+if IS_HEROKU:
+    FRONT_ORIGIN = os.environ['FRONT_ORIGIN']
+else:
+    FRONT_ORIGIN = 'http://localhost:3000'
+
+if IS_HEROKU:
+    CSRF_TRUSTED_ORIGINS = ['https://aicon-maker-backend.herokuapp.com']
+else:
+    CSRF_TRUSTED_ORIGINS = []
+
+CORS_ORIGIN_WHITELIST = [
+    FRONT_ORIGIN,
+]

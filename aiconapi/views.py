@@ -1,17 +1,28 @@
 from datetime import datetime
+from multiprocessing import dummy
+from random import sample
+import time
 from unicodedata import name
-from urllib import response
+import PIL
+import urllib.response
+import urllib.parse
+import urllib.request
 from uuid import uuid4
 from django.shortcuts import render
 from django.http import HttpResponse, Http404
+import asyncio
 import json
 import base64
 import io
+import threading
 from django.http.response import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie,csrf_exempt
 from django.contrib.sites.shortcuts import get_current_site
+from django.conf import settings
 import re
 from .models import Reservation, Tag, GeneratedImage
+from .prompt import make_prompt
+from .gpuapi import send_to_gpu
 
 # Create your views here.
 
@@ -88,22 +99,7 @@ def check_result_nodb(request):
     id_num = re.sub(r'\D', '', id)
 
     if 'finish' in id: # completed
-        domain = 'https://' + get_current_site(request).domain
-
-        respath = [
-            domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_00.png',
-            domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_01.png',
-            domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_02.png',
-            domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_03.png',
-            domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_04.png',
-            domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_05.png',
-            ]
-        ret = {
-            'id': id,
-            'completed':True,
-            'result':respath
-            }
-
+        ret = ret_sample(id,request)
         if 'aicon_reservation' in request.session:
             del request.session['aicon_reservation']
         else:
@@ -127,40 +123,73 @@ def check_result_nodb(request):
 
 @csrf_exempt
 def reserve(request):
-    # 最初のGETでアクセスしてCSRF情報を返す
-    if request.method == 'GET':
-        return JsonResponse({})
-
-    # JSON文字列
     datas = json.loads(request.body)
-
     tags = datas['tags']
 
-    # create reservation with id
-    reservation = Reservation(reservation_id=str(uuid4()))
-    if len(tags) > 0:
-        reservation.save()
-        for tag in tags:
-            t,new = Tag.objects.get_or_create(name=tag)
-            t.save()
-            reservation.input_tags.add(t)
-        reservation.save() 
-    else:
-        return Http404()
+    if len(tags) == 0:
+        return HttpResponse("invalid tags")
 
+    id = str(uuid4())
+
+    prompt = make_prompt(tags)
+    gpu_is_active = send_to_gpu(prompt,id)
+
+    if gpu_is_active == False:
+        dummy_id = 'dummy'
+        reservation,new = Reservation.objects.get_or_create(reservation_id=dummy_id)
+        reservation.save()
+        # if True:
+        #     ss = [
+        #     '/dummyImage/dummy_0.png',
+        #     '/dummyImage/dummy_1.png',
+        #     '/dummyImage/dummy_2.png',
+        #     '/dummyImage/dummy_3.png',
+        #     '/dummyImage/dummy_4.png',
+        #     '/dummyImage/dummy_5.png',
+        #     ]
+        #     for i,s in enumerate(ss):
+        #         if GeneratedImage.objects.filter(request_id=dummy_id,img_idx=i).exists():
+        #             continue
+        #         print(get_current_site(request))
+        #         print(settings.STATIC_ROOT /settings.STATIC_ / s)
+        #         img = PIL.Image.open(settings.STATIC_ROOT / s)
+        #         print(img)
+        #         buffer = io.BytesIO()
+        #         img.save(fp=buffer, format='png')
+
+        #         generated_image = GeneratedImage(request_id=dummy_id, img_idx=i)
+        #         generated_image.reservation = reservation
+        #         generated_image.save()
+
+        #         generated_image.image.save(name=f'{dummy_id}_{i}', content=buffer)
+        #         # generated_image.save()
+
+    else:
+        # create reservation with id
+        reservation = Reservation(reservation_id=id)
+        
+    reservation.save()
     id = reservation.pk
 
-    if 'aicon_reservation' in request.session:
-        print("same user !!", request.session)
-    else:
-        request.session['aicon_reservation'] = id
+    for tag in tags:
+        t,new = Tag.objects.get_or_create(name=tag)
+        t.save()
+        reservation.input_tags.add(t)
     
+    reservation.prompt = prompt
+    reservation.save()
+
     queue_length = reservation.get_queue_length()
-    
-    ret = {'id':id, 'queue_length': queue_length}
+
+    ret = {'id':id, 'queue_length': queue_length}    
     response = JsonResponse(ret)
 
     return response
+
+def test():
+    print("aaaaaaaaaaaaaaaaaaaaa")
+    time.sleep(5)
+    print("bbbbbbbbbbbbbbbbbbbbbbbbb")
 
 @csrf_exempt
 def save_generated_images(request):
@@ -197,3 +226,21 @@ def save_generated_images(request):
     response = JsonResponse(ret)
     return response
 
+def ret_sample(id,request):
+    domain = 'https://' + get_current_site(request).domain
+
+    respath = [
+        domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_00.png',
+        domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_01.png',
+        domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_02.png',
+        domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_03.png',
+        domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_04.png',
+        domain + '/static/dummyImage/icon_of_owl_kawaii_hi-resolusion_oil-painting_autumn_concept-art_05.png',
+        ]
+
+    ret = {
+        'id': id,
+        'completed':True,
+        'result':respath
+        }
+    return ret

@@ -48,7 +48,7 @@ class GeneratedImage(models.Model):
     request_id = models.CharField(max_length=128,default=None)
     img_idx = models.IntegerField(default=None)
     image = models.ImageField(upload_to='img/')
-    reservation = models.ForeignKey(Reservation,on_delete=models.DO_NOTHING,related_name='generated_image',null=True)
+    reservation = models.ForeignKey(Reservation,on_delete=models.SET_NULL,related_name='generated_image',null=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
