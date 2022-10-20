@@ -195,8 +195,10 @@ def test():
 def save_generated_images(request):
     datas = json.loads(request.body)
 
+    # print(datas)
+
     request_id = datas['id']
-    num_images = datas['imagenum']
+    num_images = datas['num_images']
 
     reservations = Reservation.objects.filter(reservation_id=request_id)
     if reservations.count() > 0:

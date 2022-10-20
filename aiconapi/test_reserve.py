@@ -11,7 +11,7 @@ sess = requests.session()
 headers = {'Content-type': 'application/json'}
 
 # 送信データ
-prm = {'tags': ["アンドロイド", "最強", "Heroku", "天上天下唯我独尊", "うっせえわ", "壊れた"]}
+prm = {'tags': ["パンプキン", "美味しい", "冬", "パイ", "サンタクロース", "甘い"]}
 
 # JSON変換
 params = json.dumps(prm)
