@@ -2,8 +2,9 @@ import requests
 import json
 import sys
 
-url = 'https://aicon-maker-backend.herokuapp.com/aiconapi/reserve'
+# url = 'https://aicon-maker-backend.herokuapp.com/aiconapi/reserve'
 # url = 'http://localhost:8000/aiconapi/reserve'
+url = 'http://localhost:8000/aiconapi/reserve_from_question'
 
 sess = requests.session()
 
@@ -11,7 +12,7 @@ sess = requests.session()
 headers = {'Content-type': 'application/json'}
 
 # 送信データ
-prm = {'tags': ["パンプキン", "ハロウィン", "フランケンシュタイン", "ホラー", "月", "狼"]}
+prm = {'tags': [0,1,1,2,0,1,1,0]}
 
 # JSON変換
 params = json.dumps(prm)

@@ -23,9 +23,9 @@ import re
 from .models import Reservation, Tag, GeneratedImage
 from .prompt import make_prompt
 from .gpuapi import send_to_gpu
+from .from_question import get_tags
 
 # Create your views here.
-
 @csrf_exempt
 def check_result(request):
 
@@ -122,15 +122,27 @@ def check_result_nodb(request):
 
     return response
 
-
+@csrf_exempt
+def reserve_from_question(request):
+    datas = json.loads(request.body)
+    tags = get_tags(datas['tags'])
+    ret = do_reserve(tags)
+    response = JsonResponse(ret)
+    return response
 
 @csrf_exempt
 def reserve(request):
     datas = json.loads(request.body)
     tags = datas['tags']
+    ret = do_reserve(tags)
+    response = JsonResponse(ret)
+    return response
+
+def do_reserve(tags):
+  
 
     if len(tags) == 0:
-        return HttpResponse("invalid tags")
+        raise HttpResponse("invalid tags")
 
     id = str(uuid4())
     reservation = Reservation(reservation_id=id)
@@ -144,9 +156,7 @@ def reserve(request):
     threading.Thread(target=reserve_process,args=(id, tags, reservation)).start()
 
     ret = {'id':id}    
-    response = JsonResponse(ret)
-    return response
-
+    return ret
 
 def reserve_process(id,tags,reservation):
     prompt = make_prompt(tags)
